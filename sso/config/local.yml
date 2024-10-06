@@ -1,6 +1,0 @@
-env: "local"
-db_path: "./storage/sso.db"
-token_ttl: 1
-grpc:
-  port: 44044
-  timout: 10
