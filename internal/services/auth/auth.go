@@ -32,7 +32,7 @@ type UserSaver interface {
 
 type UserProvider interface {
 	User(ctx context.Context, email string) (user models.User, err error)
-	IsAmin(ctx context.Context, userID int64) (bool, error)
+	IsAdmin(ctx context.Context, userID int64) (bool, error)
 }
 
 type AppProvide interface {
@@ -148,7 +148,7 @@ func (a *AuthService) IsAdmin(
 		slog.String("op", op),
 	)
 
-	isAdmin, err := a.usrProvider.IsAmin(ctx, userID)
+	isAdmin, err := a.usrProvider.IsAdmin(ctx, userID)
 	if err != nil {
 		if errors.Is(err, storage.ErrAppNotFound) {
 			log.Error("App not found", sl.Err(err))
