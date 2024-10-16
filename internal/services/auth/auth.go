@@ -79,7 +79,7 @@ func (a *AuthService) Login(
 	if err != nil {
 		if errors.Is(err, storage.ErrUserNotFound) {
 			log.Error("user not found", sl.Err(err))
-			return "", fmt.Errorf("%s %v", op, ErrInvalidCredentials)
+			return "", ErrInvalidCredentials
 		}
 
 		log.Error("error geting user", sl.Err(err))
@@ -89,7 +89,7 @@ func (a *AuthService) Login(
 	err = bcrypt.CompareHashAndPassword(user.PassHash, []byte(password))
 	if err != nil {
 		log.Error("invalid credentials", sl.Err(err))
-		return "", fmt.Errorf("%s %v", op, ErrInvalidCredentials)
+		return "", ErrInvalidCredentials
 	}
 
 	app, err := a.appProvide.App(ctx, appID)

@@ -39,7 +39,7 @@ func (s *serverApi) Login(ctx context.Context, req *ssov1.LoginRequest) (*ssov1.
 	token, err := s.authService.Login(ctx, req.GetEmail(), req.GetPassword(), int(req.GetAppId()))
 	if err != nil {
 		if errors.Is(err, authservice.ErrInvalidCredentials) {
-			return nil, status.Error(codes.InvalidArgument, "invalid argumnt")
+			return nil, status.Error(codes.InvalidArgument, "invalid email or password")
 		}
 
 		return nil, status.Error(codes.Internal, "internal error")
@@ -98,7 +98,7 @@ func validateLogin(req *ssov1.LoginRequest) error {
 	}
 
 	if req.GetAppId() == emptyValue {
-		return status.Error(codes.InvalidArgument, "AppId is required")
+		return status.Error(codes.InvalidArgument, "app_id is required")
 	}
 
 	return nil
