@@ -8,7 +8,6 @@ import (
 	"sso/internal/config"
 	"sso/internal/lib/logger/handlers/slogpretty"
 	"syscall"
-	"time"
 )
 
 const (
@@ -25,7 +24,7 @@ func main() {
 		slog.Int("port", cfg.GRPC.Port),
 	)
 
-	application := app.New(log, cfg.GRPC.Port, cfg.DBPath, time.Duration(cfg.TokenTTL))
+	application := app.New(log, cfg.GRPC.Port, cfg.DBPath, cfg.TokenTTL)
 	go application.GRPCApp.MustRun()
 
 	stop := make(chan os.Signal, 1)

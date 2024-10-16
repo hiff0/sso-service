@@ -40,9 +40,10 @@ type AppProvide interface {
 }
 
 var (
-	ErrInvalidCredentials = errors.New("Invalid credentials")
-	ErrInvalidAppId       = errors.New("Invalid app id")
-	ErrUserExists         = errors.New("User exists")
+	ErrInvalidCredentials = errors.New("invalid credentials")
+	ErrInvalidAppId       = errors.New("invalid app id")
+	ErrUserAlreadyExists  = errors.New("user already exists")
+	ErrUserNotFound       = errors.New("user not found")
 )
 
 // New return new instance of the AuthService
@@ -77,17 +78,17 @@ func (a *AuthService) Login(
 	user, err := a.usrProvider.User(ctx, email)
 	if err != nil {
 		if errors.Is(err, storage.ErrUserNotFound) {
-			log.Error("User not found", sl.Err(err))
+			log.Error("user not found", sl.Err(err))
 			return "", fmt.Errorf("%s %v", op, ErrInvalidCredentials)
 		}
 
-		log.Error("Error geting user", sl.Err(err))
+		log.Error("error geting user", sl.Err(err))
 		return "", fmt.Errorf("%s %v", op, err)
 	}
 
 	err = bcrypt.CompareHashAndPassword(user.PassHash, []byte(password))
 	if err != nil {
-		log.Error("Invalid credentials", sl.Err(err))
+		log.Error("invalid credentials", sl.Err(err))
 		return "", fmt.Errorf("%s %v", op, ErrInvalidCredentials)
 	}
 
@@ -98,11 +99,11 @@ func (a *AuthService) Login(
 
 	token, err := jwt.NewToken(user, app, a.tokenTTL)
 	if err != nil {
-		log.Error("Failed to generate token", sl.Err(err))
+		log.Error("failed to generate token", sl.Err(err))
 		return "", fmt.Errorf("%s %v", op, err)
 	}
 
-	log.Info("Login user")
+	log.Info("login user")
 	return token, nil
 }
 
@@ -119,22 +120,22 @@ func (a *AuthService) RegisterNewUser(
 
 	passHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		log.Error("PassHash generation failed", sl.Err(err))
+		log.Error("passHash generation failed", sl.Err(err))
 		return 0, fmt.Errorf("%s %v", op, err)
 	}
 
 	uid, err := a.usrSaver.SaveUser(ctx, email, passHash)
 	if err != nil {
 		if errors.Is(err, storage.ErrUserAlreadyExists) {
-			log.Error("User already exists", sl.Err(err))
-			return 0, fmt.Errorf("%s %v", op, ErrUserExists)
+			log.Error("user already exists", sl.Err(err))
+			return 0, ErrUserAlreadyExists
 		}
 
-		log.Error("Save user failed", sl.Err(err))
+		log.Error("save user failed", sl.Err(err))
 		return 0, fmt.Errorf("%s %v", op, err)
 	}
 
-	log.Info("Register user")
+	log.Info("register user")
 	return uid, nil
 }
 
@@ -151,11 +152,16 @@ func (a *AuthService) IsAdmin(
 	isAdmin, err := a.usrProvider.IsAdmin(ctx, userID)
 	if err != nil {
 		if errors.Is(err, storage.ErrAppNotFound) {
-			log.Error("App not found", sl.Err(err))
+			log.Error("app not found", sl.Err(err))
 			return false, fmt.Errorf("%s %v", op, ErrInvalidAppId)
 		}
 
-		log.Error("Check is admin error", sl.Err(err))
+		if errors.Is(err, ErrUserNotFound) {
+			log.Error("user not found", sl.Err(err))
+			return false, fmt.Errorf("%s %v", op, ErrUserNotFound)
+		}
+
+		log.Error("check is admin error", sl.Err(err))
 		return false, fmt.Errorf("%s %v", op, err)
 	}
 

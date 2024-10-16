@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	authservice "sso/internal/services/auth"
-	"sso/internal/storage"
 
 	ssov1 "github.com/hiff0/protos/gen/go/sso"
 	"google.golang.org/grpc"
@@ -58,11 +57,11 @@ func (s *serverApi) Register(ctx context.Context, req *ssov1.RegisterRequest) (*
 
 	userID, err := s.authService.RegisterNewUser(ctx, req.GetEmail(), req.GetPassword())
 	if err != nil {
-		if errors.Is(err, authservice.ErrUserExists) {
-			return nil, status.Error(codes.AlreadyExists, "already exist")
+		if errors.Is(err, authservice.ErrUserAlreadyExists) {
+			return nil, status.Error(codes.AlreadyExists, "user already exists")
 		}
 
-		return nil, status.Error(codes.Internal, "internal error")
+		return nil, status.Error(codes.Internal, "failed to register user")
 	}
 
 	return &ssov1.RegisterResponse{
@@ -77,7 +76,7 @@ func (s *serverApi) IsAdmin(ctx context.Context, req *ssov1.IsAdminRequest) (*ss
 
 	isAdmin, err := s.authService.IsAdmin(ctx, req.GetUserId())
 	if err != nil {
-		if errors.Is(err, storage.ErrUserNotFound) {
+		if errors.Is(err, authservice.ErrUserNotFound) {
 			return nil, status.Error(codes.NotFound, "not found")
 		}
 
