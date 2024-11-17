@@ -1,0 +1,27 @@
+version: '3.9'
+
+networks:
+  sso:
+    name: sso
+    driver: bridge
+
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "44044:44044"
+    networks:
+      - sso
+
+  # postgres-sso:
+  #   image: postgres:17
+  #   restart: unless-stopped
+  #   environment:
+  #     - POSTGRES_PASSWORD=sso
+  #     - POSTGRES_USER=sso
+  #     - POSTGRES_DB=sso
+  #   volumes:
+  #     - .data/postgres:/var/lib/postgresql/data
+  #   ports:
+  #     - ${POSTGRES_PORT:-5432}:5432

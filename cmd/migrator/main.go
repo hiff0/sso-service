@@ -4,6 +4,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"log"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/sqlite3"
@@ -36,12 +37,12 @@ func main() {
 
 	if err := m.Up(); err != nil {
 		if errors.Is(err, migrate.ErrNoChange) {
-			fmt.Println("no migrates to apply")
+			log.Println("no migrates to apply")
 			return
 		}
 
 		panic(err)
 	}
 
-	fmt.Println("migration apply successfully")
+	log.Println("migration apply successfully")
 }
