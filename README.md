@@ -5,6 +5,11 @@
 make run-local
 ```
 
+## Run local with Docker
+```bash
+docker-compose up -d
+```
+
 ## Migrations
 ```bash
 make migrate  
