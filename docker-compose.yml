@@ -14,14 +14,37 @@ services:
     networks:
       - sso
 
-  # postgres-sso:
-  #   image: postgres:17
-  #   restart: unless-stopped
-  #   environment:
-  #     - POSTGRES_PASSWORD=sso
-  #     - POSTGRES_USER=sso
-  #     - POSTGRES_DB=sso
-  #   volumes:
-  #     - .data/postgres:/var/lib/postgresql/data
-  #   ports:
-  #     - ${POSTGRES_PORT:-5432}:5432
+  postgres-sso:
+    image: postgres:17
+    container_name: postgres-sso
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sso
+      POSTGRES_PASSWORD: sso
+      POSTGRES_DB: sso
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - sso-pgdata:/var/lib/postgresql/data
+    command: >
+      postgres -c max_connections=1000
+              -c shared_buffers=256MB
+              -c effective_cache_size=768MB
+              -c maintenance_work_mem=64MB
+              -c checkpoint_completion_target=0.7
+              -c wal_buffers=16MB
+              -c default_statistics_target=100
+    ports:
+      - "5432:5432"
+    networks:
+      - sso
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres_user -d postgres_db" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    tty: true
+    stdin_open: true
+
+volumes:
+  sso-pgdata:
+    driver: local
