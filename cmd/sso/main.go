@@ -24,14 +24,14 @@ func main() {
 		slog.Int("port", cfg.GRPC.Port),
 	)
 
-	application := app.New(log, cfg.GRPC.Port, cfg.DBPath, cfg.TokenTTL)
+	application := app.New(log, cfg.GRPC.Port, cfg.TokenTTL)
 	go application.GRPCApp.MustRun()
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
 
-	signal := <-stop
-	log.Info("Application stopping... Signal:", slog.String("signal", signal.String()))
+	signalCh := <-stop
+	log.Info("Application stopping... Signal:", slog.String("signal", signalCh.String()))
 
 	application.GRPCApp.Stop()
 	log.Info("Application stopped")

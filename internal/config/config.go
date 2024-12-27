@@ -9,10 +9,10 @@ import (
 )
 
 type Config struct {
-	Env      string        `yaml:"env" env-default: "local"`
-	DBPath   string        `yaml:"db_path" env-requred: "true"`
-	TokenTTL time.Duration `yaml:"token_ttl" env-requred: "true"`
-	GRPC     GRPCConfig    `yaml: "grpc"`
+	Env      string        `yaml:"env" env-default:"local"`
+	DBPath   string        `yaml:"db_path" env-requred:"true"`
+	TokenTTL time.Duration `yaml:"token_ttl" env-requred:"true"`
+	GRPC     GRPCConfig    `yaml:"grpc"`
 }
 
 type GRPCConfig struct {

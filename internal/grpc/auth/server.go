@@ -31,7 +31,7 @@ func Register(gRPC *grpc.Server, authService AuthService) {
 }
 
 func (s *serverApi) Login(ctx context.Context, req *ssov1.LoginRequest) (*ssov1.LoginResponse, error) {
-	// TODO: Use validation packege
+	// TODO: Use validation package
 	if err := validateLogin(req); err != nil {
 		return nil, err
 	}

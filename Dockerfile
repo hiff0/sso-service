@@ -25,7 +25,7 @@ COPY --from=builder app/sso sso
 COPY --from=builder app/migrator migrator
 
 COPY migrations migrations
-COPY storage storage
+#COPY storage storage
 COPY config/prod.yml config/prod.yml
 
 RUN chmod +x sso migrator
